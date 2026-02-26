@@ -3,7 +3,7 @@
 #include <string.h>
 #include "parser.h"
 #include <stdlib.h>
-
+#include <time.h>
 
 #define CERO 48
 #define BASE 10
@@ -21,15 +21,18 @@ int mul(int a,int b){
 }
 
 int division(int a,int b){
+
     if(b == 0){
-        return fprintf(stderr,"ERROR: La division por cero no esta definida\n");
+      fprintf(stderr,"ERROR: La division por cero no esta definida\n");
+      exit(1);
     }
     return a / b;
 }
 
 int pot(int num,int exp){
     if(exp < 0){
-        return fprintf(stderr,"ERROR: No se pueden calcular exponentes negativos\n");
+         fprintf(stderr,"ERROR: No se pueden calcular exponentes negativos\n");
+	 exit(1);
     }
     int n = num;
     if(exp == 0){
@@ -42,11 +45,36 @@ int pot(int num,int exp){
     return num;
 }
 
+int myabs(int n){
+  if(n < 0) return n * -1;
+  return n;
+}
+
+int raiz_cuadrada(int a){
+  int r = a / 2;
+  float h,b;
+  float epsilon = 0.00001;
+	do{
+	  h = rand() % r;
+	  b = rand() % r;
+	}while(b*h != a);
+  while(myabs(h - b) > epsilon){
+	b = (h + b) * 0.5; //0.5 es lo mismo que dividir por 2
+	h = a /b;
+  }
+
+  return (int)b;
+}
 
 int raiz(int a,int b){
-    int resul = -1;
-    return fprintf(stderr,"ERROR: No implementado\n");
-    return resul;
+  if(b < 1){
+	fprintf(stderr,"ERROR: Raiz invalida.\n");
+	exit(1);
+  } else if(b > 2){
+	fprintf(stderr,"ERROR: Las raices mayores a 2 no se encuentran implmentadas.\n");
+	exit(1);
+  }
+  return raiz_cuadrada(a);
 }
 
 //conviente una cadena a un valor entero
@@ -115,7 +143,6 @@ void liberar_nodo(token_t *nodo){
 }
 
 
-
 int eval(token_t *token){
     token_t *c = token;
     token_t *op = NULL;
@@ -157,7 +184,10 @@ int eval(token_t *token){
     return resul;
 }
 
+
+
 int main(){
+  srand(time(NULL));
     char expr[256];
     //No se me ocurrio ning�n otro nombre
     token_t *token = NULL;
@@ -165,6 +195,8 @@ int main(){
     fgets(expr,256,stdin);
     generar_tokens(&token,expr);
     token = a_pol(&token);
+
+	
     printf("%d\n",eval(token));
     return 0;
   }
