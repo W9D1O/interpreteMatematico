@@ -50,6 +50,8 @@ int myabs(int n){
   return n;
 }
 
+
+//Metodo babilonico
 int raiz_cuadrada(int a){
   int r = a / 2;
   float h,b;
@@ -107,6 +109,10 @@ int ejecutar_operacion(char op,int n1,int n2){
             break;
         case '#':
             resul = raiz(n1,n2);
+            break;
+        case '^':
+            resul = pot(n1,n2);
+            break;
     }
     return resul;
 }
@@ -153,15 +159,16 @@ int eval(token_t *token){
             op = token;
             num1 = NULL;
             token = token->sig;
-        } else if(token->t == NUMERO){
+        } else if(token->t == NUMERO_ENTERO || token->t == NUMERO_FRACCIONARIO){
             num1 = token;
             token_t *n2 = num1->sig;
-            if(n2->t == NUMERO){
+            if(n2->t == NUMERO_ENTERO || n2->t == NUMERO_FRACCIONARIO){
+			  //TODO: solucionar el problema con numeros fraccionarios			  
                 int rParcial = ejecutar_operacion(op->c[0],to_int(num1->c),to_int(n2->c));
                 op->sig = n2->sig;
                 free(op->c);
                 op->c = int_to_char(rParcial);
-                op->t = NUMERO;
+                op->t = NUMERO_ENTERO;
                 liberar_nodo(num1);
                 liberar_nodo(n2);
                 if(op == c){
@@ -195,8 +202,6 @@ int main(){
     fgets(expr,256,stdin);
     generar_tokens(&token,expr);
     token = a_pol(&token);
-
-	
     printf("%d\n",eval(token));
     return 0;
   }

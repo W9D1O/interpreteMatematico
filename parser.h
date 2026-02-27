@@ -2,6 +2,8 @@
 #define PARSER_H
 #include "lexer.h"
 #endif // !PARSER_H
+
+
 int jerarquia_op(char op[]);
 token_t* liberar_mem(token_t *l);
 bool es_mayor(int topeOp,int topeToken);

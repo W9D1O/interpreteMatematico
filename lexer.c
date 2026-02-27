@@ -9,13 +9,13 @@ token_t* adelante(token_t *lis,char c[], type_t type){
     token_t *aux = (token_t*)malloc(sizeof(token_t));
     //Sugerencia de chatgpt
     if (aux == NULL) {
-        fprintf(stderr, "Error: malloc de token_t falló\n");
+        fprintf(stderr, "Error: malloc de token_t fallÃ³\n");
         exit(EXIT_FAILURE);
 }
     aux->c = (char*)malloc(strlen(c) + 1);
     //Sugerencia de chatgpt
     if (aux->c == NULL) {
-        fprintf(stderr, "Error: malloc de lexema falló\n");
+        fprintf(stderr, "Error: malloc de lexema fallÃ³\n");
         free(aux);
         exit(EXIT_FAILURE);
     }
@@ -43,21 +43,36 @@ bool isseparator(char op){
   bool vf = false;
     for(int i =  0; i < len; i++){
         if(sim[i] == op) return true;
-    }
+   }
   return vf;
 }
+
+
+bool isidentificador(char c){
+  if((c >= A_MINUS && c <= Z_MINUS) ||
+     (c >= A_MAYUS && c <= Z_MAYUS)) return true;
+  return false;
+}
+
 void generar_tokens(token_t **t, char expr[]){
     int len = strlen(expr);
     int pos = 0;
     char dig[21];
+	bool frac = false;
     for(int i = 0; i < len ; i++){
-        if(isdigit(expr[i])){
+        if(isdigit(expr[i]) || expr[i] == '.'){
             dig[pos] = expr[i];
             pos++;
+			if(expr[i] == '.') frac = true;
         } else if(isoperator(expr[i]) || isseparator(expr[i])){
             if(pos > 0){
             dig[pos] = '\0';
-            *t = adelante(*t,dig,NUMERO);
+			if(!frac)
+            *t = adelante(*t,dig,NUMERO_ENTERO);
+			else{
+			  *t = adelante(*t,dig,NUMERO_FRACCIONARIO);
+			  frac = false;
+			}
             }
             pos = 0;
             char op[2];
@@ -71,6 +86,8 @@ void generar_tokens(token_t **t, char expr[]){
 
     if(pos > 0){
         dig[pos] = '\0';
-        *t = adelante(*t,dig,NUMERO);
+		if(!frac)
+        *t = adelante(*t,dig,NUMERO_ENTERO);
+		else *t = adelante(*t,dig,NUMERO_FRACCIONARIO);
     }
 }

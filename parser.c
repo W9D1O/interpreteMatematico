@@ -51,7 +51,7 @@ token_t* a_pol(token_t **token){
     while(*token != NULL){
         if((*token)->t == SEPARADOR){
             separadores(&ops,&pol, token);
-        } else if((*token)->t == NUMERO){
+        } else if((*token)->t == NUMERO_ENTERO || (*token)->t == NUMERO_FRACCIONARIO){
             pol = adelante(pol,(*token)->c,(*token)->t);
         } else{
             if(ops == NULL){
@@ -60,9 +60,14 @@ token_t* a_pol(token_t **token){
                 bool mayorPre = es_mayor(jerarquia_op(ops->c), jerarquia_op((*token)->c));
                 if(mayorPre && ops->t != SEPARADOR){
                     //agrego el operador que esta en la cabecera de ops a pol
-                    pol = adelante(pol,ops->c,ops->t);
-                    //Libero la cabecera de ops(ops se desplaza a su siguiente nodo)
-                    ops = liberar_mem(ops);
+                    while(ops != NULL && mayorPre){
+                        pol = adelante(pol,ops->c,ops->t);
+                        //Libero la cabecera de ops(ops se desplaza a su siguiente nodo)
+                        ops = liberar_mem(ops);
+                        if(ops != NULL){
+                            mayorPre = es_mayor(jerarquia_op(ops->c), jerarquia_op((*token)->c));
+                        }else mayorPre = false;
+                    }
                     //Agrego el operador que esta en token
                     ops = adelante(ops, (*token)->c,(*token)->t);
                 } 
