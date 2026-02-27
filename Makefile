@@ -1,3 +1,3 @@
 
 main:
-	gcc main.c lexer.c parser.c -o  main -Wall -Wextra -ggdb
+	gcc main.c mate.c lexer.c parser.c -o  main -Wall -Wextra -ggdb
