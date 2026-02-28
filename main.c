@@ -71,6 +71,70 @@ char* int_to_char(int num){
     return c;
 }
 
+//Redimensiona un string recibiendo un string y el valor
+//de caracteres a acumentar.
+char* redim_string(char *c,int aum){
+    char *nc = (char*)realloc(c, aum*sizeof(char));
+    if(nc == NULL){
+        fprintf(stderr,"ERROR: no se pudo redimencionar el string\n");
+        exit(1);
+    }
+    return nc;
+}
+
+//en caso de que el redondeo den intero sea hacia arriba resta 1 para 
+//no perder la parte fraccionaria
+void pent_pfrac(int *pentera, float *num){
+
+    if(*pentera > *num){
+        *pentera -= 1;
+        *num -= *pentera;
+     }else if(*pentera < *num){
+        *num -= *pentera;
+    }
+}
+
+
+//Multiplica por la BASE para desplazar la coma
+//hasta que sea un entero o se hayan cubierto los 4 decimales.
+void float_to_int(int *pentera,int *df,float *num){
+    while(*num != 0 && *df < 4){
+        *num *= BASE;
+        int dig = (int)*num;
+        pent_pfrac(&dig, num);
+        *pentera = *pentera*BASE + dig;
+        *df += 1;
+        printf("%d %d \n",dig,*pentera);
+    }
+}
+
+
+
+
+//Convierte un valor flotante a una cadena de caracteres
+char* float_to_char(float num){
+    int pentera = (int)num;
+    int len = int_len(pentera);
+    pent_pfrac(&pentera,&num);
+    printf("%d %f\n",pentera,num);
+    if(pentera == num){
+        char *c = redim_string(int_to_char(pentera),2);
+        c[len] = '.';
+        c[len + 1] = CERO;
+        c[len + 2] = '\0';
+        return c;
+    }
+    char *c = int_to_char(pentera);
+    int df = 0;
+    pentera = 0;
+    float_to_int(&pentera,&df,&num);
+    char *nc = redim_string(c,df);
+    strcat(nc,".");
+    strcat(nc,int_to_char(pentera));
+    return nc;
+}
+
+
 void liberar_nodo(token_t *nodo){
     free(nodo->c);
     free(nodo);
@@ -118,7 +182,6 @@ int eval(token_t *token){
     }
     return resul;
 }
-
 
 
 int main(){
