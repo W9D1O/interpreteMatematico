@@ -14,6 +14,8 @@ int division(int a, int b);
 
 int pot(int n, int exp);
 
+float fpot(float num,int exp);
+
 int myabs(int n);
 
 int raiz_cuadrada(int n);

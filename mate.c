@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 
+
 int sum(int a, int b){
     return a + b;
 }
@@ -38,6 +39,26 @@ int pot(int num,int exp){
     }
     return num;
 }
+
+float fpot(float num,int exp){
+    float n = num;
+    if(exp < 0){
+        exp *= -1;
+        for(int i = 1; i < exp; i++){
+            num = num*n; 
+        }
+        return  1 / num;
+    }
+    if(exp == 0){
+        return 1;
+    }else{
+        for(int i = 1; i < exp; i++){
+            num = num*n; 
+        }
+    }
+    return num;
+}
+
 
 int myabs(int n){
   if(n < 0) return n * -1;

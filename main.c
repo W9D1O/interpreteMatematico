@@ -7,7 +7,7 @@
 #include "mate.h"
 
 
-//conviente una cadena a un valor entero
+//convierte una cadena a un valor entero
 int to_int(char n[]){
     int num = 0;
     int len = strlen(n);
@@ -104,10 +104,8 @@ void float_to_int(int *pentera,int *df,float *num){
         pent_pfrac(&dig, num);
         *pentera = *pentera*BASE + dig;
         *df += 1;
-        printf("%d %d \n",dig,*pentera);
     }
 }
-
 
 
 
@@ -116,7 +114,6 @@ char* float_to_char(float num){
     int pentera = (int)num;
     int len = int_len(pentera);
     pent_pfrac(&pentera,&num);
-    printf("%d %f\n",pentera,num);
     if(pentera == num){
         char *c = redim_string(int_to_char(pentera),2);
         c[len] = '.';
@@ -134,6 +131,38 @@ char* float_to_char(float num){
     return nc;
 }
 
+
+//Devuelve la longitud de la parte entera
+//o la parte fraccionaria de un numero decimal
+int len_pent_pfrac(char *c){
+    int pos = 0;
+    while(c[pos] != '.' && c[pos] != '\0') pos++;
+    return pos;
+}
+
+void sep_pent_pfrac(char *c,int len,char *n){
+    for(int i = 0; i < len; i++){
+        n[i] = c[i];
+    }
+    n[len] = '\0';
+}
+
+//Convierte una cadena de caracteres
+//a un numero fraccionario
+float to_float(char *c){
+    float epsilon = 0.00001;
+    int lenPEnt = len_pent_pfrac(c);
+    char pEnt[lenPEnt];
+    sep_pent_pfrac(c,lenPEnt,pEnt);
+    int lenPFrac = len_pent_pfrac(&c[lenPEnt + 1]);
+    char pFrac[lenPFrac];
+    sep_pent_pfrac(&c[lenPEnt + 1],lenPFrac,pFrac);
+    float result = (float)to_int(pEnt);
+    for(int i = 1; i <= lenPFrac; i++){
+       result += fpot(BASE, i*-1) * (pFrac[i-1] - CERO);
+    }
+    return result + epsilon;
+}
 
 void liberar_nodo(token_t *nodo){
     free(nodo->c);
