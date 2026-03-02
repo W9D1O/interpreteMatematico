@@ -46,7 +46,7 @@ int eje_op_int(char op,int n1,int n2){
 }
 
 float eje_op_float(char op,float n1,float n2){
-    int resul;
+    float resul;
     switch (op) {
         case '+': 
             resul = fsum(n1,n2);
@@ -223,6 +223,7 @@ void eval(token_t *token){
                     op->t = NUMERO_ENTERO;
                 } else{
                     float rParcial = eje_op_float(op->c[0],to_float(num1->c),to_float(n2->c));
+                    printf("este es mi resultado parcial: %f\n",rParcial);
                     op->sig = n2->sig;
                     free(op->c);
                     op->c = float_to_char(rParcial);
@@ -265,6 +266,7 @@ void imp(token_t *token){
     }
     printf("\n");
 }
+
 
 int main(){
   srand(time(NULL));
