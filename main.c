@@ -20,7 +20,7 @@ int to_int(char n[]){
 }
 
 
-int ejecutar_operacion(char op,int n1,int n2){
+int eje_op_int(char op,int n1,int n2){
     int resul;
     switch (op) {
         case '+': 
@@ -36,7 +36,7 @@ int ejecutar_operacion(char op,int n1,int n2){
             resul = mul(n1,n2);
             break;
         case '#':
-            resul = raiz(n1,n2);
+            resul = (int)raiz((float)n1,n2);
             break;
         case '^':
             resul = pot(n1,n2);
@@ -45,6 +45,30 @@ int ejecutar_operacion(char op,int n1,int n2){
     return resul;
 }
 
+float eje_op_float(char op,float n1,float n2){
+    int resul;
+    switch (op) {
+        case '+': 
+            resul = fsum(n1,n2);
+            break;
+        case '-':
+            resul = fresta(n1,n2);
+            break;
+        case '/':
+            resul = fdivision(n1,n2);
+            break;
+        case '*':
+            resul = fmul(n1,n2);
+            break;
+        case '#':
+            resul = raiz(n1,n2);
+            break;
+        case '^':
+            resul = fpot(n1,n2);
+            break;
+    }
+    return resul;
+}
 
 //Toma un nuimero y devielve su logitud, es decir la cantidad de digitos
 //por los que est� formado.
@@ -154,12 +178,17 @@ float to_float(char *c){
     int lenPEnt = len_pent_pfrac(c);
     char pEnt[lenPEnt];
     sep_pent_pfrac(c,lenPEnt,pEnt);
-    int lenPFrac = len_pent_pfrac(&c[lenPEnt + 1]);
-    char pFrac[lenPFrac];
-    sep_pent_pfrac(&c[lenPEnt + 1],lenPFrac,pFrac);
     float result = (float)to_int(pEnt);
-    for(int i = 1; i <= lenPFrac; i++){
-       result += fpot(BASE, i*-1) * (pFrac[i-1] - CERO);
+    if(lenPEnt < (int)strlen(c)){
+        int lenPFrac = len_pent_pfrac(&c[lenPEnt + 1]);
+        char pFrac[lenPFrac];
+        sep_pent_pfrac(&c[lenPEnt + 1],lenPFrac,pFrac);
+
+        for(int i = 1; i <= lenPFrac; i++){
+            result += fpot(BASE, i*-1) * (pFrac[i-1] - CERO);
+        }
+    } else{
+        result += fpot(BASE,-1) * ('0' - CERO);
     }
     return result + epsilon;
 }
@@ -169,12 +198,13 @@ void liberar_nodo(token_t *nodo){
     free(nodo);
 }
 
-
-int eval(token_t *token){
+void eval(token_t *token){
     token_t *c = token;
     token_t *op = NULL;
     token_t *num1;
-    int resul;
+    bool esFloat = false;
+    int resulI;
+    float resulF;
     while(token != NULL){
         if(token->t == OPERADOR){
             op = token;
@@ -185,18 +215,32 @@ int eval(token_t *token){
             token_t *n2 = num1->sig;
             if(n2->t == NUMERO_ENTERO || n2->t == NUMERO_FRACCIONARIO){
 			  //TODO: solucionar el problema con numeros fraccionarios			  
-                int rParcial = ejecutar_operacion(op->c[0],to_int(num1->c),to_int(n2->c));
-                op->sig = n2->sig;
-                free(op->c);
-                op->c = int_to_char(rParcial);
-                op->t = NUMERO_ENTERO;
+                if(num1->t == NUMERO_ENTERO && n2->t == NUMERO_ENTERO){
+                    int rParcial = eje_op_int(op->c[0],to_int(num1->c),to_int(n2->c));
+                    op->sig = n2->sig;
+                    free(op->c);
+                    op->c = int_to_char(rParcial);
+                    op->t = NUMERO_ENTERO;
+                } else{
+                    float rParcial = eje_op_float(op->c[0],to_float(num1->c),to_float(n2->c));
+                    op->sig = n2->sig;
+                    free(op->c);
+                    op->c = float_to_char(rParcial);
+                    op->t = NUMERO_FRACCIONARIO;
+                }
                 liberar_nodo(num1);
                 liberar_nodo(n2);
                 if(op == c){
                     if(op->sig == NULL){
                         token = NULL;
-                        resul = to_int(op->c);
-                        liberar_nodo(op);
+                        if(op->t == NUMERO_ENTERO) {
+                            resulI = to_int(op->c);
+                            liberar_nodo(op);
+                        } else{
+                            esFloat = true;
+                            resulF = to_float(op->c);
+                            liberar_nodo(op);
+                        }
                     }else{
                         token = op->sig;
                     }
@@ -209,9 +253,18 @@ int eval(token_t *token){
             }
         }
     }
-    return resul;
+    if(esFloat) printf("%f\n",resulF);
+    else printf("%d\n",resulI);
 }
 
+
+void imp(token_t *token){
+    while(token != NULL){
+        printf("%s ",token->c);
+        token = token->sig;
+    }
+    printf("\n");
+}
 
 int main(){
   srand(time(NULL));
@@ -221,7 +274,8 @@ int main(){
     printf("Ingrese expresion matematica: \n");
     fgets(expr,256,stdin);
     generar_tokens(&token,expr);
+    imp(token);
     token = a_pol(&token);
-    printf("%d\n",eval(token));
+    eval(token);
     return 0;
   }

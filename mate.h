@@ -6,11 +6,19 @@
 
 int sum(int a,int b);
 
+float fsum(float a, float b);
+
 int resta(int a, int b);
+
+float fresta(float a,float b);
 
 int mul(int a, int b);
 
+float fmul(float a,float b);
+
 int division(int a, int b);
+
+float fdivision(float a,float b);
 
 int pot(int n, int exp);
 
@@ -18,8 +26,8 @@ float fpot(float num,int exp);
 
 int myabs(int n);
 
-int raiz_cuadrada(int n);
+float raiz_cuadrada(float n);
 
-int raiz(int a, int b);
+float raiz(float n, int exp);
 
 

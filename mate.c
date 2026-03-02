@@ -24,6 +24,27 @@ int division(int a,int b){
     return a / b;
 }
 
+float fsum(float a, float b){
+    return a + b;
+}
+
+float fresta(float a,float b){
+    return a - b;
+}
+
+float fmul(float a,float b){
+    return a*b;
+}
+
+float fdivision(float a,float b){
+
+    if(b == 0){
+      fprintf(stderr,"ERROR: La division por cero no esta definida\n");
+      exit(1);
+    }
+    return a / b;
+}
+
 int pot(int num,int exp){
     if(exp < 0){
          fprintf(stderr,"ERROR: No se pueden calcular exponentes negativos\n");
@@ -67,7 +88,7 @@ int myabs(int n){
 
 
 //Metodo babilonico
-int raiz_cuadrada(int a){
+float raiz_cuadrada(float a){
   int r = a / 2;
   float h,b;
   float epsilon = 0.00001;
@@ -80,10 +101,10 @@ int raiz_cuadrada(int a){
 	h = a /b;
   }
 
-  return (int)b;
+  return b;
 }
 
-int raiz(int a,int b){
+float raiz(float a,int b){
   if(b < 1){
 	fprintf(stderr,"ERROR: Raiz invalida.\n");
 	exit(1);
