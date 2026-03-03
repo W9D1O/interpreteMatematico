@@ -9,13 +9,17 @@
 
 //convierte una cadena a un valor entero
 int to_int(char n[]){
+    int j = 0;
+    bool vf = isnegativo(n);
+    if(vf) j++;
     int num = 0;
     int len = strlen(n);
-    for(int i = 0; i < len; i++){
+    for(int i = j; i < len; i++){
         //CERO es en numero 48 del codigo ascii al restarselo a los caracteres del 0..9 
         //puedo transformarlos en enteros.
        num += pot(BASE,len - 1 - i) * (n[i] - CERO);
     }
+    if(vf) num *= -1;
     return num;
 }
 
@@ -86,11 +90,18 @@ int int_len(int num){
 //Convierte un valor entero a una cadena de caracteres
 char* int_to_char(int num){
     int len = int_len(num);
+    bool vf = false;
+    if(num < 0){
+        len += 1;
+        vf = true;
+        num *= -1;
+    }
     char *c = (char*)malloc(len + 1);
     for(int i = 0; i < len; i ++){
         c[len - 1 - i] = CERO + (num % BASE);
         num /= BASE;
     }
+    if(vf) c[0] = '-';
     c[len] = '\0';
     return c;
 }
@@ -124,7 +135,7 @@ void pent_pfrac(int *pentera, float *num){
 void float_to_int(int *pentera,int *df,float *num){
     while(*num != 0 && *df < 4){
         *num *= BASE;
-        int dig = (int)*num;
+        int dig = *num;
         pent_pfrac(&dig, num);
         *pentera = *pentera*BASE + dig;
         *df += 1;
@@ -174,7 +185,7 @@ void sep_pent_pfrac(char *c,int len,char *n){
 //Convierte una cadena de caracteres
 //a un numero fraccionario
 float to_float(char *c){
-    float epsilon = 0.00001;
+    //float epsilon = 0.00001;
     int lenPEnt = len_pent_pfrac(c);
     char pEnt[lenPEnt];
     sep_pent_pfrac(c,lenPEnt,pEnt);
@@ -190,7 +201,7 @@ float to_float(char *c){
     } else{
         result += fpot(BASE,-1) * ('0' - CERO);
     }
-    return result + epsilon;
+    return result;
 }
 
 void liberar_nodo(token_t *nodo){
@@ -214,7 +225,6 @@ void eval(token_t *token){
             num1 = token;
             token_t *n2 = num1->sig;
             if(n2->t == NUMERO_ENTERO || n2->t == NUMERO_FRACCIONARIO){
-			  //TODO: solucionar el problema con numeros fraccionarios			  
                 if(num1->t == NUMERO_ENTERO && n2->t == NUMERO_ENTERO){
                     int rParcial = eje_op_int(op->c[0],to_int(num1->c),to_int(n2->c));
                     op->sig = n2->sig;
@@ -223,7 +233,6 @@ void eval(token_t *token){
                     op->t = NUMERO_ENTERO;
                 } else{
                     float rParcial = eje_op_float(op->c[0],to_float(num1->c),to_float(n2->c));
-                    printf("este es mi resultado parcial: %f\n",rParcial);
                     op->sig = n2->sig;
                     free(op->c);
                     op->c = float_to_char(rParcial);
@@ -268,6 +277,7 @@ void imp(token_t *token){
 }
 
 
+
 int main(){
   srand(time(NULL));
     char expr[256];
@@ -276,8 +286,8 @@ int main(){
     printf("Ingrese expresion matematica: \n");
     fgets(expr,256,stdin);
     generar_tokens(&token,expr);
-    imp(token);
     token = a_pol(&token);
+    imp(token);
     eval(token);
     return 0;
   }

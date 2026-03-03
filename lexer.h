@@ -31,4 +31,6 @@ bool isseparator(char op);
 
 bool isidentificador(char ide);
 
+bool isnegativo(char *exp);
+
 void generar_tokens(token_t **t, char expr[]);

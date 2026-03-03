@@ -54,13 +54,27 @@ bool isidentificador(char c){
   return false;
 }
 
+// Se toma como un valor negativo 
+// a una expresion de la siguiente forma
+// -n es decir - n no es un numero negativo
+bool isnegativo(char *exp){
+    if(exp[0] != '-') return false;
+    bool vf = false;
+    int len = strlen(exp);
+    if(len > 1 && isdigit(exp[1])){
+        vf = true;
+    }
+    return vf;
+    
+}
+
 void generar_tokens(token_t **t, char expr[]){
     int len = strlen(expr);
     int pos = 0;
     char dig[21];
 	bool frac = false;
     for(int i = 0; i < len ; i++){
-        if(isdigit(expr[i]) || expr[i] == '.'){
+        if(isdigit(expr[i]) || expr[i] == '.' || isnegativo(&expr[i])){
             dig[pos] = expr[i];
             pos++;
 			if(expr[i] == '.') frac = true;
