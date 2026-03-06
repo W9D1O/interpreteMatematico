@@ -2,7 +2,6 @@
 #define MATE_H
 #define CERO 48
 #define BASE 10
-#endif // !MATE_H
 
 int sum(int a,int b);
 
@@ -29,5 +28,8 @@ int myabs(int n);
 float raiz_cuadrada(float n);
 
 float raiz(float n, int exp);
+
+#endif // !MATE_H
+
 
 
