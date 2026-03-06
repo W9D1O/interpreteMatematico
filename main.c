@@ -117,38 +117,48 @@ char* redim_string(char *c,int aum){
     return nc;
 }
 
+//Invierte el numero(positivo a negativo) segun un bool
+void invert_float(bool vf,int *n,float *no){
+    if(vf){
+        *no *= -1;
+        *n *= -1;
+    }
+
+}
 //en caso de que el redondeo den intero sea hacia arriba resta 1 para 
 //no perder la parte fraccionaria
 void pent_pfrac(int *pentera, float *num){
-
+    bool vf = *num < 0;
+    invert_float(vf,pentera,num);
     if(*pentera > *num){
         *pentera -= 1;
         *num -= *pentera;
      }else if(*pentera < *num){
         *num -= *pentera;
     }
+    invert_float(vf,pentera,num);
 }
 
 
 //Multiplica por la BASE para desplazar la coma
 //hasta que sea un entero o se hayan cubierto los 4 decimales.
 void float_to_int(int *pentera,int *df,float *num){
-    while(*num != 0 && *df < 4){
-        *num *= BASE;
-        int dig = *num;
-        pent_pfrac(&dig, num);
-        *pentera = *pentera*BASE + dig;
+    float aux = *num;
+    while(aux != 0 && *df < 4){
+        aux *= BASE;
         *df += 1;
     }
+    *pentera = aux;
 }
 
 
 
 //Convierte un valor flotante a una cadena de caracteres
 char* float_to_char(float num){
-    int pentera = (int)num;
+    int pentera = num;
     int len = int_len(pentera);
     pent_pfrac(&pentera,&num);
+    bool vf = num < 0;
     if(pentera == num){
         char *c = redim_string(int_to_char(pentera),2);
         c[len] = '.';
@@ -160,6 +170,7 @@ char* float_to_char(float num){
     int df = 0;
     pentera = 0;
     float_to_int(&pentera,&df,&num);
+    if(vf) pentera *= -1;
     char *nc = redim_string(c,df);
     strcat(nc,".");
     strcat(nc,int_to_char(pentera));
@@ -186,10 +197,13 @@ void sep_pent_pfrac(char *c,int len,char *n){
 //a un numero fraccionario
 float to_float(char *c){
     //float epsilon = 0.00001;
+    bool vf = isnegativo(c);
     int lenPEnt = len_pent_pfrac(c);
     char pEnt[lenPEnt];
     sep_pent_pfrac(c,lenPEnt,pEnt);
-    float result = (float)to_int(pEnt);
+    float result = to_int(pEnt);
+    //Probamos con una boludes
+    if(vf) result *= -1;
     if(lenPEnt < (int)strlen(c)){
         int lenPFrac = len_pent_pfrac(&c[lenPEnt + 1]);
         char pFrac[lenPFrac];
@@ -201,6 +215,8 @@ float to_float(char *c){
     } else{
         result += fpot(BASE,-1) * ('0' - CERO);
     }
+    //Si atado con alambre, lo importante es que funciona
+    if(vf) result *= -1;
     return result;
 }
 
@@ -233,6 +249,7 @@ void eval(token_t *token){
                     op->t = NUMERO_ENTERO;
                 } else{
                     float rParcial = eje_op_float(op->c[0],to_float(num1->c),to_float(n2->c));
+                    printf("estoy en resultado parcial %f\n",rParcial);
                     op->sig = n2->sig;
                     free(op->c);
                     op->c = float_to_char(rParcial);
@@ -263,14 +280,15 @@ void eval(token_t *token){
             }
         }
     }
-    if(esFloat) printf("%f\n",resulF);
+    if(esFloat) printf("este es el resultado final en coma flotante %f\n",resulF);
     else printf("%d\n",resulI);
 }
 
 
 void imp(token_t *token){
+    printf("Imprimiendo Tokens: \n");
     while(token != NULL){
-        printf("%s ",token->c);
+        printf(" %s ",token->c);
         token = token->sig;
     }
     printf("\n");
@@ -279,13 +297,14 @@ void imp(token_t *token){
 
 
 int main(){
-  srand(time(NULL));
+    srand(time(NULL));
     char expr[256];
     //No se me ocurrio ning�n otro nombre
     token_t *token = NULL;
     printf("Ingrese expresion matematica: \n");
     fgets(expr,256,stdin);
     generar_tokens(&token,expr);
+    imp(token);
     token = a_pol(&token);
     imp(token);
     eval(token);
