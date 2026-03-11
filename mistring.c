@@ -231,3 +231,9 @@ char* tokenizar(char input[],char sep,int pos){
     };
     return  &input[aux];
 }
+
+
+void strcopy(char *source,char *dst){
+    while((*dst++ = *source++));
+}
+

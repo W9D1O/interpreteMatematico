@@ -51,7 +51,7 @@ token_t* a_pol(token_t **token){
     while(*token != NULL){
         if((*token)->t == SEPARADOR){
             separadores(&ops,&pol, token);
-        } else if((*token)->t == NUMERO_ENTERO || (*token)->t == NUMERO_FRACCIONARIO){
+        } else if((*token)->t == NUMERO_ENTERO || (*token)->t == NUMERO_FRACCIONARIO || (*token)->t == IDENTIFICADOR){
             pol = adelante(pol,(*token)->c,(*token)->t);
         } else{
             if(ops == NULL){

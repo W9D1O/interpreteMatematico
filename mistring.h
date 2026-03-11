@@ -30,6 +30,7 @@ int len(char *src);
 
 bool isequal(char *src1,char *src2);
 
+void strcopy(char *source,char *dst);
 
 char* tokenizar(char input[],char sep,int pos);
 #endif // !MISTRING_H
