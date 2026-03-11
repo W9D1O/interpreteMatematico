@@ -26,9 +26,10 @@ token_t* adelante(token_t *lis,char c[], type_t type){
 
   }
 
-
+//Se agrego el simbolo = como operador
+//NOTE: tendria que estar seguro que esto no afecte al parser.
 bool isoperator(char op){
-  char *sim = "+-*/^#";
+  char *sim = "+-*/^#=";
   int len = strlen(sim);
   bool vf = false;
     for(int i =  0; i < len; i++){
@@ -37,6 +38,8 @@ bool isoperator(char op){
   return vf;
 }
 
+//Los parentesis, corchetes y llaves son separadores
+//No esta contemplado su jerarquia en el parser.
 bool isseparator(char op){
   char *sim = "{}[]()";
   int len = strlen(sim);
@@ -47,7 +50,8 @@ bool isseparator(char op){
   return vf;
 }
 
-
+//se consedera identificador a
+//los caracteres que conforman el abecedario
 bool isidentificador(char c){
   if((c >= A_MINUS && c <= Z_MINUS) ||
      (c >= A_MAYUS && c <= Z_MAYUS)) return true;
@@ -68,17 +72,27 @@ bool isnegativo(char *exp){
     
 }
 
+//recibe una cadena y la separa en tokens
+//FIXME: La funcion se esta haciendo muy extensa,habria que refactorizar
 void generar_tokens(token_t **t, char expr[]){
     int len = strlen(expr);
     int pos = 0;
     char dig[21];
+    char iden[21];
+    int posI = 0; //pos para iden
 	bool frac = false;
     for(int i = 0; i < len ; i++){
         if(isdigit(expr[i]) || expr[i] == '.' || isnegativo(&expr[i])){
-            dig[pos] = expr[i];
-            pos++;
-			if(expr[i] == '.') frac = true;
-        } else if(isoperator(expr[i]) || isseparator(expr[i])){
+            if(expr[i] != '.' || (expr[i] == '.' && pos > 0)){
+                dig[pos] = expr[i];
+                pos++;
+                if(expr[i] == '.') frac = true;
+            }
+        } else if(isidentificador(expr[i])) {
+            iden[posI] = expr[i];
+            posI++;
+        }
+        else if(isoperator(expr[i]) || isseparator(expr[i])){
             if(pos > 0){
             dig[pos] = '\0';
 			if(!frac)
@@ -88,6 +102,11 @@ void generar_tokens(token_t **t, char expr[]){
 			  frac = false;
 			}
             }
+            if(posI > 0){
+                iden[posI] = '\0';
+                *t = adelante(*t,iden,IDENTIFICADOR);
+            }
+            posI = 0;
             pos = 0;
             char op[2];
             op[0] = expr[i];
@@ -103,5 +122,10 @@ void generar_tokens(token_t **t, char expr[]){
 		if(!frac)
         *t = adelante(*t,dig,NUMERO_ENTERO);
 		else *t = adelante(*t,dig,NUMERO_FRACCIONARIO);
+    }
+
+    if(posI > 0){
+        iden[posI] = '\0';
+        *t = adelante(*t,iden,IDENTIFICADOR);
     }
 }
