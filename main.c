@@ -4,7 +4,7 @@
 #include <time.h>
 #include "evaluador.h"
 #include <conio.h>
-#include <string.h>
+#include "mistring.h"
 
 #define MAX_BUFFER 256
 #define ENTER 13
@@ -38,6 +38,22 @@ bool new_exit(){
     return false;
 }
 
+void calc(){
+
+}
+
+void let(){
+
+}
+
+void help(){
+
+}
+
+void print(){
+
+}
+
 void imp(token_t *token){
     printf("Imprimiendo Tokens: \n");
     while(token != NULL){
@@ -47,14 +63,22 @@ void imp(token_t *token){
     printf("\n");
 }
 
-void ditpatcher(){
+void ditpatcher(char *command,char *argv,bool *status){
 
+    if(isequal(to_lower(command), "exit")){
+        *status = new_exit();
+    }
+    (void)argv;
 }
+
 
 void relp(char *expr){
     bool status = true;
     while(status){
         cargar_buffer(expr);
+        char *command = tokenizar(expr,' ',0);
+        int nxtpos = len(command) + 1;
+        ditpatcher(command,&expr[nxtpos],&status);
     }
     printf("%s\n",expr);
 
@@ -65,7 +89,6 @@ int main(){
     char expr[MAX_BUFFER];
     //No se me ocurrio ning�n otro nombre
     relp(expr); 
-    return 0;
     /*token_t *token = NULL;
     printf("Ingrese expresion matematica: \n");
     fgets(expr,256,stdin);
@@ -73,6 +96,6 @@ int main(){
     imp(token);
     token = a_pol(&token);
     imp(token);
-    eval(token);
-    return 0;*/
+    eval(token);*/
+    return 0;
   }

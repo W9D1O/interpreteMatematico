@@ -1,6 +1,6 @@
 #ifndef MISTRING_H
 #define MISTRING_H
-
+//cambiar A y Z tambien lostengo definido en lexer.h
 #define A 65
 #define Z 90
 #define L_DIF 32
@@ -25,4 +25,11 @@ void float_to_int(int *pentera,int *df,float *num);
 char* float_to_char(float num);
 
 float to_float(char *c);
+
+int len(char *src);
+
+bool isequal(char *src1,char *src2);
+
+
+char* tokenizar(char input[],char sep,int pos);
 #endif // !MISTRING_H

@@ -3,19 +3,28 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "lexer.h"
-#include <string.h>
 #include "mistring.h"
+#include <string.h>
+//Implementar strcat para no usar string.h
+//
+//devuelve la longitudad de un array
+int len(char *src){
+    int l = 0;
+    while(src[l++] != '\0');
+
+    return l - 1;
+}
 //convierte una cadena a un valor entero
 int to_int(char n[]){
     int j = 0;
     bool vf = isnegativo(n);
     if(vf) j++;
     int num = 0;
-    int len = strlen(n);
-    for(int i = j; i < len; i++){
+    int l = len(n);
+    for(int i = j; i < l; i++){
         //CERO es en numero 48 del codigo ascii al restarselo a los caracteres del 0..9 
         //puedo transformarlos en enteros.
-       num += pot(BASE,len - 1 - i) * (n[i] - CERO);
+       num += pot(BASE,l - 1 - i) * (n[i] - CERO);
     }
     if(vf) num *= -1;
     return num;
@@ -24,16 +33,16 @@ int to_int(char n[]){
 //Devuelvo una cadena en minuscula
 char* to_lower(char arg[])
 {
-    int len = strlen(arg);
-    char *l = (char*)malloc(len + 1);
+    int lenght = len(arg);
+    char *l = (char*)malloc(lenght + 1);
     if(l == NULL) return NULL;
-    for(int i = 0; i < len; i++){
+    for(int i = 0; i < lenght; i++){
         if(arg[i] >= A && arg[i] <= Z){
             //32 es la diferencia en el codigo ascii para cada letra del abecedario
             l[i] = arg[i] + L_DIF;
         } else l[i] = arg[i];
     }
-    l[len] = '\0';
+    l[lenght] = '\0';
     return l;
 }
 
@@ -119,6 +128,7 @@ void float_to_int(int *pentera,int *df,float *num){
     *pentera = aux;
 }
 
+
 //Convierte un valor flotante a una cadena de caracteres
 char* float_to_char(float num){
     int pentera = num;
@@ -170,7 +180,7 @@ float to_float(char *c){
     float result = to_int(pEnt);
     //Probamos con una boludes
     if(vf) result *= -1;
-    if(lenPEnt < (int)strlen(c)){
+    if(lenPEnt < (int)len(c)){
         int lenPFrac = len_pent_pfrac(&c[lenPEnt + 1]);
         char pFrac[lenPFrac];
         sep_pent_pfrac(&c[lenPEnt + 1],lenPFrac,pFrac);
@@ -184,4 +194,40 @@ float to_float(char *c){
     //Si atado con alambre, lo importante es que funciona
     if(vf) result *= -1;
     return result;
+}
+
+
+
+bool isequal(char *src1,char *src2){
+    bool vf = false;
+    int lenght = len(src1);
+    if(lenght != len(src2)) return vf;
+    
+    int i = 0;
+    while(i < lenght && src1[i] == src2[i]){
+        i++;
+    }
+
+    if(i == lenght) vf = true;
+
+    return vf;
+}
+
+
+//reemplaca el caracter seleccionado por sep
+//y devuelve la direccion de memoria de donde 
+//empezo a leer
+char* tokenizar(char input[],char sep,int pos){
+    //Sacamos static int pos por el momento
+    int aux = pos;
+    if(input == NULL) return NULL;
+    while(pos < len(input) && input[pos] != sep && input[pos] != '\0') {
+        pos++;
+      }
+    if(aux == pos) return NULL;
+    else{
+      input[pos] = '\0';
+      pos++;
+    };
+    return  &input[aux];
 }
