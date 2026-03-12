@@ -5,113 +5,14 @@
 #include "evaluador.h"
 #include <conio.h>
 #include "mistring.h"
+#include "hash.h"
 
 #define MAX_BUFFER 256
 #define ENTER 13
 #define BACKSPACE 8
 
-#define MAX_TABLA 73
-
-typedef struct {
-    char *clave;
-    char *valor;
-}keyvalue_t;
-
-typedef struct hashNodo_t{
-    keyvalue_t item;
-    struct hashNodo_t *sig;
-}hashNodo_t;
 
 
-/*djb2
-this algorithm (k=33) was first reported by dan bernstein many years ago in comp.lang.c. 
-another version of this algorithm (now favored by bernstein) uses xor: hash(i) = hash(i - 1) * 33 ^ str[i];
-the magic of number 33 (why it works better than many other constants, prime or not) has never been adequately explained.*/
-//source: http://www.cse.yorku.ca/~oz/hash.html
-
- unsigned long hash(unsigned char *str)
-{
-    unsigned long hash = 5381;
-    int c;
-
-    while ((c = *str++))
-        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-
-    return hash;
-}
-
-//agega elementos a la lista LIFO
-hashNodo_t *insertar_adelante(hashNodo_t *nodo, keyvalue_t item) {
-    hashNodo_t *aux = (hashNodo_t *)malloc(sizeof(hashNodo_t));
-    aux->item.clave = (char *)malloc(len(item.clave) + 1);
-    aux->item.valor = (char *)malloc(len(item.valor) + 1);
-    strcopy(item.clave,aux->item.clave); 
-    strcopy(item.valor,aux->item.valor);
-    aux->sig = nodo;
-    return aux; 
-}
-
-//si la clave existe devuelve el nodo, caso contrario devuel NULL
-hashNodo_t *existe(hashNodo_t *nodo, char *clave){
-   hashNodo_t *aux = nodo;
-    while(aux != NULL && !isequal(aux->item.clave, clave)) {
-        aux = aux->sig;
-    }
-    return aux;
-}
-
-//Devuelve el indice correspondiente
-//mas que nada para no escribir hash... saraza todo el tiempo.
-int obtener_indice(char *clave){
-    return hash((unsigned char *)clave) % MAX_TABLA;
-}
-
-//inserta un elemento al array, si existe la clave reemplaza el valor
-void insertar_item(hashNodo_t **tabla,keyvalue_t item){
-    int i = obtener_indice(item.clave);
-
-    if(tabla[i] == NULL) tabla[i] = insertar_adelante(tabla[i], item);
-    else {
-        hashNodo_t *aux = existe(tabla[i],item.clave);
-        if(aux == NULL) tabla[i] = insertar_adelante(tabla[i],item);
-        else strcopy(item.valor, aux->item.valor);
-    } 
-    
-}
-
-//retorna el nodo anterior
-hashNodo_t *nodo_anterior(hashNodo_t *nodo,hashNodo_t *enlace){
-    hashNodo_t *ant;
-    while(nodo != enlace) {
-        ant = nodo;
-        nodo = nodo->sig;
-    }    
-
-    return ant;
-}
-
-//Libera clave y valor antes de liberar el nodo
-void liberar_nodo_hash(hashNodo_t *nodo){
-    free(nodo->item.clave);
-    free(nodo->item.valor);
-    free(nodo);
-}
-
-//Elimina un nodo de la lista
-void eliminar_item(hashNodo_t **tabla,char *clave){
-    int i = obtener_indice(clave);
-    hashNodo_t *aux = existe(tabla[i],clave);
-    if(aux != NULL) {
-        if(aux == tabla[i]){
-            tabla[i] = tabla[i]->sig;
-            liberar_nodo_hash(aux);
-        } else {
-           hashNodo_t *ant = nodo_anterior(tabla[i],aux); 
-            ant->sig = aux->sig;
-            liberar_nodo_hash(aux);
-        }
-    }
-}
 
 //recibe input del usuario
 void cargar_buffer(char *input){
@@ -187,11 +88,26 @@ void relp(char *expr){
 
 }
 
+void print_tabla(hashNodo_t **tabla){
+    for(int i = 0; i < MAX_TABLA; i++){
+        if(tabla[i] == NULL) printf("%d: Vacio\n",i+1);
+        else {
+            while(tabla[i] != NULL){
+                printf("Elementos de la posicion %d de la tabla\n",i+1);
+                printf("Clave: %s Valor: %s\n",tabla[i]->item.clave,tabla[i]->item.valor);
+                tabla[i] = tabla[i]->sig;
+            }
+        }
+    }
+}
+
+void init_tabla(hashNodo_t **tabla){
+    for(int i = 0; i < MAX_TABLA; i++) tabla[i] = NULL;
+}
 int main(){
     hashNodo_t *tabla[MAX_TABLA];
-    (void)tabla;
     srand(time(NULL));
-    char expr[MAX_BUFFER];
+    /*char expr[MAX_BUFFER];
     //No se me ocurrio ning�n otro nombre
     //relp(expr); 
     token_t *token = NULL;
@@ -200,8 +116,12 @@ int main(){
     generar_tokens(&token,expr);
     imp(token);
     token = a_pol(&token);
-    imp(token);
-
+    imp(token);*/
+    init_tabla(tabla);
+    insertar_item(tabla, (keyvalue_t){.clave = "hola",.valor = "69"});
+    insertar_item(tabla, (keyvalue_t){.clave = "HOLA",.valor = "96"});
+    insertar_item(tabla, (keyvalue_t){.clave = "hola",.valor = "220"});
+    print_tabla(tabla);
     //eval(token);
     return 0;
   }

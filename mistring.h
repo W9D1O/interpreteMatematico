@@ -1,4 +1,5 @@
 #ifndef MISTRING_H
+#include <stdbool.h>
 #define MISTRING_H
 //cambiar A y Z tambien lostengo definido en lexer.h
 #define A 65
