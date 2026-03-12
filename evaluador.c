@@ -66,6 +66,8 @@ void liberar_nodo(token_t *nodo){
     free(nodo);
 }
 
+
+//FIXME: esta funcion crecion demasiado
 void eval(token_t *token){
     token_t *c = token;
     token_t *op = NULL;

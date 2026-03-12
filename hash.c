@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "mistring.h"
 #include "hash.h"
+#include <stdio.h>
 /*djb2
 this algorithm (k=33) was first reported by dan bernstein many years ago in comp.lang.c. 
 another version of this algorithm (now favored by bernstein) uses xor: hash(i) = hash(i - 1) * 33 ^ str[i];
@@ -40,21 +41,18 @@ hashNodo_t *existe(hashNodo_t *nodo, char *clave){
 
 //Devuelve el indice correspondiente
 //mas que nada para no escribir hash... saraza todo el tiempo.
-int obtener_indice(char *clave){
-    //FIXME: Me acabo de dar cuenta que no es una muy buena idea tener definido el limite
-    //es mejor poder definilo cuando se lo quiera usar.
-    //por el momento voy a dejar definido MAX_TABLA en hash.h
-    return hash((unsigned char *)clave) % MAX_TABLA;
+int obtener_indice(char *clave, int maxsize){
+    return hash((unsigned char *)clave) % maxsize;
 }
 
 //inserta un elemento al array, si existe la clave reemplaza el valor
-void insertar_item(hashNodo_t **tabla,keyvalue_t item){
-    int i = obtener_indice(item.clave);
+void insertar_item(hashtable_t *hash,keyvalue_t item){
+    int i = obtener_indice(item.clave,hash->maxsize);
 
-    if(tabla[i] == NULL) tabla[i] = insertar_adelante(tabla[i], item);
+    if(hash->tabla[i] == NULL) hash->tabla[i] = insertar_adelante(hash->tabla[i], item);
     else {
-        hashNodo_t *aux = existe(tabla[i],item.clave);
-        if(aux == NULL) tabla[i] = insertar_adelante(tabla[i],item);
+        hashNodo_t *aux = existe(hash->tabla[i],item.clave);
+        if(aux == NULL) hash->tabla[i] = insertar_adelante(hash->tabla[i],item);
         else strcopy(item.valor, aux->item.valor);
     } 
     
@@ -79,15 +77,15 @@ void liberar_nodo_hash(hashNodo_t *nodo){
 }
 
 //Elimina un nodo de la lista
-void eliminar_item(hashNodo_t **tabla,char *clave){
-    int i = obtener_indice(clave);
-    hashNodo_t *aux = existe(tabla[i],clave);
+void eliminar_item(hashtable_t *hash,char *clave){
+    int i = obtener_indice(clave,hash->maxsize);
+    hashNodo_t *aux = existe(hash->tabla[i],clave);
     if(aux != NULL) {
-        if(aux == tabla[i]){
-            tabla[i] = tabla[i]->sig;
+        if(aux == hash->tabla[i]){
+            hash->tabla[i] = hash->tabla[i]->sig;
             liberar_nodo_hash(aux);
         } else {
-           hashNodo_t *ant = nodo_anterior(tabla[i],aux); 
+           hashNodo_t *ant = nodo_anterior(hash->tabla[i],aux); 
             ant->sig = aux->sig;
             liberar_nodo_hash(aux);
         }
@@ -95,16 +93,41 @@ void eliminar_item(hashNodo_t **tabla,char *clave){
 }
 
 
+void print_tabla(hashtable_t hash){
+
+    for(int i = 0; i < hash.maxsize; i++){
+        if(hash.tabla[i] == NULL) printf("%d: Vacio\n",i+1);
+        else {
+            hashNodo_t *aux = hash.tabla[i];
+            while(aux != NULL){
+                printf("Elementos de la posicion %d de la tabla\n",i+1);
+                printf("Clave: %s Valor: %s\n",aux->item.clave,aux->item.valor);
+                aux = aux->sig;
+            }
+        }
+    }
+}
+
+
+//Recerma memoria segun el valor maxsize y lo inicializa en NULL
+void init_tabla(hashtable_t *hash){
+    hash->tabla = malloc(sizeof(hashNodo_t*)*hash->maxsize);
+    if(hash->tabla == NULL){
+        fprintf(stderr,"ERROR: No se pudo asignar memoria a la tabla hash\n");
+        exit(1);
+    }
+    for(int i = 0; i < hash->maxsize; i++) hash->tabla[i] = NULL;
+}
 
 //Recibe una clave y retorna el nodo en la posicion(si hay colisiones recorre los nodos).
 //Si la clave no existe en la tabla retorna NULL
-hashNodo_t *obtener_elemento(hashNodo_t **tabla,char *clave){
+hashNodo_t *obtener_elemento(hashtable_t *hash,char *clave){
     hashNodo_t *encontrado = NULL;
-    int indice = obtener_indice(clave);
-    if(tabla[indice] != NULL && tabla[indice]->item.clave == clave) encontrado  = tabla[indice];
+    int indice = obtener_indice(clave,hash->maxsize);
+    if(hash->tabla[indice] != NULL && isequal(hash->tabla[indice]->item.clave,clave)) encontrado  = hash->tabla[indice];
     else {
-        hashNodo_t *aux = tabla[indice];
-        while(aux != NULL && aux->item.clave != clave) aux = aux->sig;
+        hashNodo_t *aux = hash->tabla[indice];
+        while(aux != NULL && !isequal(aux->item.clave, clave)) aux = aux->sig;
         encontrado = aux;
     }
     return encontrado;

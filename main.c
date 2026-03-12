@@ -88,24 +88,9 @@ void relp(char *expr){
 
 }
 
-void print_tabla(hashNodo_t **tabla){
-    for(int i = 0; i < MAX_TABLA; i++){
-        if(tabla[i] == NULL) printf("%d: Vacio\n",i+1);
-        else {
-            while(tabla[i] != NULL){
-                printf("Elementos de la posicion %d de la tabla\n",i+1);
-                printf("Clave: %s Valor: %s\n",tabla[i]->item.clave,tabla[i]->item.valor);
-                tabla[i] = tabla[i]->sig;
-            }
-        }
-    }
-}
-
-void init_tabla(hashNodo_t **tabla){
-    for(int i = 0; i < MAX_TABLA; i++) tabla[i] = NULL;
-}
 int main(){
-    hashNodo_t *tabla[MAX_TABLA];
+    hashtable_t hash;
+    hash.maxsize = 73;
     srand(time(NULL));
     /*char expr[MAX_BUFFER];
     //No se me ocurrio ning�n otro nombre
@@ -117,11 +102,15 @@ int main(){
     imp(token);
     token = a_pol(&token);
     imp(token);*/
-    init_tabla(tabla);
-    insertar_item(tabla, (keyvalue_t){.clave = "hola",.valor = "69"});
-    insertar_item(tabla, (keyvalue_t){.clave = "HOLA",.valor = "96"});
-    insertar_item(tabla, (keyvalue_t){.clave = "hola",.valor = "220"});
-    print_tabla(tabla);
+    init_tabla(&hash);
+    insertar_item(&hash, (keyvalue_t){.clave = "hola",.valor = "69"});
+    insertar_item(&hash, (keyvalue_t){.clave = "HOLA",.valor = "96"});
+    insertar_item(&hash, (keyvalue_t){.clave = "hola",.valor = "220"});
+    //print_tabla(hash);
+    hashNodo_t *elem = obtener_elemento(&hash,"HOLA");
+    if(elem != NULL){
+        printf("Clave: %s , Valor: %s",elem->item.clave,elem->item.valor);
+    }
     //eval(token);
     return 0;
   }
