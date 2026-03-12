@@ -40,6 +40,7 @@ the magic of number 33 (why it works better than many other constants, prime or 
     return hash;
 }
 
+//agega elementos a la lista LIFO
 hashNodo_t *insertar_adelante(hashNodo_t *nodo, keyvalue_t item) {
     hashNodo_t *aux = (hashNodo_t *)malloc(sizeof(hashNodo_t));
     aux->item.clave = (char *)malloc(len(item.clave) + 1);
@@ -59,17 +60,57 @@ hashNodo_t *existe(hashNodo_t *nodo, char *clave){
     return aux;
 }
 
+//Devuelve el indice correspondiente
+//mas que nada para no escribir hash... saraza todo el tiempo.
+int obtener_indice(char *clave){
+    return hash((unsigned char *)clave) % MAX_TABLA;
+}
+
 //inserta un elemento al array, si existe la clave reemplaza el valor
 void insertar_item(hashNodo_t **tabla,keyvalue_t item){
-    int i = hash(item.clave) % MAX_TABLA;
+    int i = obtener_indice(item.clave);
 
     if(tabla[i] == NULL) tabla[i] = insertar_adelante(tabla[i], item);
     else {
         hashNodo_t *aux = existe(tabla[i],item.clave);
         if(aux == NULL) tabla[i] = insertar_adelante(tabla[i],item);
-        else aux->item.valor = item.valor;
+        else strcopy(item.valor, aux->item.valor);
     } 
     
+}
+
+//retorna el nodo anterior
+hashNodo_t *nodo_anterior(hashNodo_t *nodo,hashNodo_t *enlace){
+    hashNodo_t *ant;
+    while(nodo != enlace) {
+        ant = nodo;
+        nodo = nodo->sig;
+    }    
+
+    return ant;
+}
+
+//Libera clave y valor antes de liberar el nodo
+void liberar_nodo_hash(hashNodo_t *nodo){
+    free(nodo->item.clave);
+    free(nodo->item.valor);
+    free(nodo);
+}
+
+//Elimina un nodo de la lista
+void eliminar_item(hashNodo_t **tabla,char *clave){
+    int i = obtener_indice(clave);
+    hashNodo_t *aux = existe(tabla[i],clave);
+    if(aux != NULL) {
+        if(aux == tabla[i]){
+            tabla[i] = tabla[i]->sig;
+            liberar_nodo_hash(aux);
+        } else {
+           hashNodo_t *ant = nodo_anterior(tabla[i],aux); 
+            ant->sig = aux->sig;
+            liberar_nodo_hash(aux);
+        }
+    }
 }
 
 //recibe input del usuario
@@ -125,7 +166,7 @@ void imp(token_t *token){
     printf("\n");
 }
 
-void ditpatcher(char *command,char *argv,bool *status){
+void dispatcher(char *command,char *argv,bool *status){
 
     if(isequal(to_lower(command), "exit")){
         *status = new_exit();
@@ -140,7 +181,7 @@ void relp(char *expr){
         cargar_buffer(expr);
         char *command = tokenizar(expr,' ',0);
         int nxtpos = len(command) + 1;
-        ditpatcher(command,&expr[nxtpos],&status);
+        dispatcher(command,&expr[nxtpos],&status);
     }
     printf("%s\n",expr);
 
