@@ -30,7 +30,7 @@ hashNodo_t *insertar_adelante(hashNodo_t *nodo, keyvalue_t item) {
     return aux; 
 }
 
-//si la clave existe devuelve el nodo, caso contrario devuel NULL
+//si la clave existe devuelve el nodo, caso contrario devuelve NULL
 hashNodo_t *existe(hashNodo_t *nodo, char *clave){
    hashNodo_t *aux = nodo;
     while(aux != NULL && !isequal(aux->item.clave, clave)) {
@@ -113,7 +113,7 @@ void print_tabla(hashtable_t hash){
 void init_tabla(hashtable_t *hash){
     hash->tabla = malloc(sizeof(hashNodo_t*)*hash->maxsize);
     if(hash->tabla == NULL){
-        fprintf(stderr,"ERROR: No se pudo asignar memoria a la tabla hash\n");
+        fprintf(stderr,"INIT_TABLA ERROR: No se pudo asignar memoria a la tabla hash\n");
         exit(1);
     }
     for(int i = 0; i < hash->maxsize; i++) hash->tabla[i] = NULL;
@@ -124,11 +124,17 @@ void init_tabla(hashtable_t *hash){
 hashNodo_t *obtener_elemento(hashtable_t *hash,char *clave){
     hashNodo_t *encontrado = NULL;
     int indice = obtener_indice(clave,hash->maxsize);
-    if(hash->tabla[indice] != NULL && isequal(hash->tabla[indice]->item.clave,clave)) encontrado  = hash->tabla[indice];
-    else {
-        hashNodo_t *aux = hash->tabla[indice];
-        while(aux != NULL && !isequal(aux->item.clave, clave)) aux = aux->sig;
-        encontrado = aux;
-    }
+    encontrado = existe(hash->tabla[indice],clave);
     return encontrado;
+}
+
+
+char *obtener_valor(hashtable_t *hash,char *clave){
+    int i = obtener_indice(clave,hash->maxsize);
+    hashNodo_t *nodo = existe(hash->tabla[i],clave);
+    char *valor = NULL;
+    if(nodo != NULL){
+        valor = strdupl(nodo->item.valor);
+    }
+    return valor;
 }
