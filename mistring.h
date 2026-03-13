@@ -34,4 +34,12 @@ bool isequal(char *src1,char *src2);
 void strcopy(char *source,char *dst);
 
 char* tokenizar(char input[],char sep,int pos);
+
+bool isdig(char d);
+
+bool isfloat(char *num);
+
+char* strdupl(char *source);
+
+void strfree(char *src);
 #endif // !MISTRING_H

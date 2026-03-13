@@ -231,8 +231,37 @@ char* tokenizar(char input[],char sep,int pos){
     return  &input[aux];
 }
 
-
+//copia el string de origen al destino
+//se tiene que reservar la memoria antes.
 void strcopy(char *source,char *dst){
     while((*dst++ = *source++));
 }
 
+//Reserva memoria ey copia el string
+char *strdupl(char *source){
+    char *dup = (char *)malloc(len(source) + 1);
+    if(dup == NULL){ 
+        fprintf(stderr,"STRDUPL ERROR: no se pudo reservar memoria\n");
+        exit(1);
+    }
+    strcopy(source,dup);
+    return dup;
+}
+//Libera memoria, existe mas que nada por
+//strdupl
+void strfree(char *src){
+    free(src);
+}
+
+bool isdig(char d){
+    return d >= CERO && d <= NUEVE;
+}
+
+bool isfloat(char *num){
+    int l = len(num);
+    int i = 0;
+    bool vf = false;
+    while(i < l && isdig(num[i])) i++;
+    if(i < l - 1 && num[i] == '.') vf = true;
+    return vf;
+}
