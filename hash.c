@@ -20,12 +20,18 @@ the magic of number 33 (why it works better than many other constants, prime or 
 }
 
 //agega elementos a la lista LIFO
+//FIXME: se rompe si algun elemnto de item es NULL
 hashNodo_t *insertar_adelante(hashNodo_t *nodo, keyvalue_t item) {
     hashNodo_t *aux = (hashNodo_t *)malloc(sizeof(hashNodo_t));
-    aux->item.clave = (char *)malloc(len(item.clave) + 1);
-    aux->item.valor = (char *)malloc(len(item.valor) + 1);
-    strcopy(item.clave,aux->item.clave); 
-    strcopy(item.valor,aux->item.valor);
+    if(item.clave != NULL){
+        aux->item.clave = (char *)malloc(len(item.clave) + 1);
+        strcopy(item.clave,aux->item.clave); 
+    }
+    if(item.valor != NULL){
+        aux->item.valor = (char *)malloc(len(item.valor) + 1);
+        strcopy(item.valor,aux->item.valor);
+
+    }
     aux->sig = nodo;
     return aux; 
 }
@@ -48,12 +54,15 @@ int obtener_indice(char *clave, int maxsize){
 //inserta un elemento al array, si existe la clave reemplaza el valor
 void insertar_item(hashtable_t *hash,keyvalue_t item){
     int i = obtener_indice(item.clave,hash->maxsize);
-
     if(hash->tabla[i] == NULL) hash->tabla[i] = insertar_adelante(hash->tabla[i], item);
     else {
         hashNodo_t *aux = existe(hash->tabla[i],item.clave);
         if(aux == NULL) hash->tabla[i] = insertar_adelante(hash->tabla[i],item);
-        else strcopy(item.valor, aux->item.valor);
+        else if(aux->item.valor == NULL){
+            aux->item.valor = strdupl(item.valor);
+        } else{
+            strcopy(item.valor, aux->item.valor);
+        }  
     } 
     
 }

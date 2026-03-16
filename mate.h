@@ -1,6 +1,8 @@
 #ifndef MATE_H
 #define MATE_H
+
 #define CERO 48
+#define NUEVE 57
 #define BASE 10
 
 int sum(int a,int b);

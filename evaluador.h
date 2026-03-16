@@ -1,7 +1,7 @@
 #ifndef EVALUADOR_H
 #define EVALUADOR_H 
 #include "mate.h"
-
+#include "hash.h"
 
 int eje_op_int(char op,int n1,int n2);
 
@@ -12,5 +12,5 @@ void pent_pfrac(int *pentera, float *num);
 
 void liberar_nodo(token_t *nodo);
 
-void eval(token_t *token);
+void eval(token_t *token,hashtable_t *hash);
 #endif // !EVALUADOR_H

@@ -9,13 +9,13 @@ token_t* adelante(token_t *lis,char c[], type_t type){
     token_t *aux = (token_t*)malloc(sizeof(token_t));
     //Sugerencia de chatgpt
     if (aux == NULL) {
-        fprintf(stderr, "Error: malloc de token_t fallÃ³\n");
+        fprintf(stderr, "LEXER ERROR: malloc de token_t fallo\n");
         exit(EXIT_FAILURE);
 }
     aux->c = (char*)malloc(strlen(c) + 1);
     //Sugerencia de chatgpt
     if (aux->c == NULL) {
-        fprintf(stderr, "Error: malloc de lexema fallÃ³\n");
+        fprintf(stderr, "LEXER ERROR: malloc de lexema fallo\n");
         free(aux);
         exit(EXIT_FAILURE);
     }

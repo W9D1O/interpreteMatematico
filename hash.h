@@ -36,4 +36,6 @@ void insertar_item(hashtable_t *hash,keyvalue_t item);
 void eliminar_item(hashtable_t *hash,char *clave);
 
 hashNodo_t *obtener_elemento(hashtable_t *table,char *clave);
+
+char *obtener_valor(hashtable_t *hash,char *clave);
 #endif // !HASH_H

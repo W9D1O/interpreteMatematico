@@ -250,7 +250,8 @@ char *strdupl(char *source){
 //Libera memoria, existe mas que nada por
 //strdupl
 void strfree(char *src){
-    free(src);
+        free(src);
+    
 }
 
 bool isdig(char d){
