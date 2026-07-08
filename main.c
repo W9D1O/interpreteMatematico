@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include "evaluador.h"
-#include <conio.h>
 #include "mistring.h"
 #include "hash.h"
 
@@ -12,31 +11,52 @@
 #define ENTER 13
 #define BACKSPACE 8
 
+#ifdef _WIN32
 
+#include <conio.h>
+#define _getch() getche()
+
+#else
+#include <unistd.h>
+#include <termios.h>
+
+//TODO: esta funcion fue sacada de internet, agregar fuente.
+char getche(void)
+{
+	struct termios oldattr, newattr;
+	char ch;
+	tcgetattr( STDIN_FILENO, &oldattr );
+	newattr = oldattr;
+	newattr.c_lflag &= ~( ICANON );
+	tcsetattr( STDIN_FILENO, TCSANOW, &newattr );
+	ch = getchar();
+	tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
+	return ch;
+}
+#endif
 
 
 //recibe input del usuario
 void cargar_buffer(char *input){
-    int i = 0;
-    bool status = true;
-    char c;
-    //Leo caracteras hasta recibir la tecla enter o hasta
-    //llegar al maximo -1 para poder agregar el correspondiente fin de linea
-    char *promt = ">>> ";
-    printf("%s",promt);
-    while(status && (c = _getch()) && i < MAX_BUFFER - 1){
-        if(c == ENTER) status = false;
-        
-        if(status && c != BACKSPACE){
-            printf("%c",c);
-            input[i++] = c;
-        } else if(c == BACKSPACE && i > 0) {
-            printf("%c",c);
-            i--;
-        }
-    }
-    printf("\r\n");
-    input[i++] = '\0';
+	int i = 0;
+	bool status = true;
+	char c;
+	//Leo caracteras hasta recibir la tecla enter o hasta
+	//llegar al maximo -1 para poder agregar el correspondiente fin de linea
+	char *promt = ">>> ";
+	printf("%s",promt);
+	while(status && i < MAX_BUFFER - 1){
+		c = getche();
+		if(c == ENTER) status = false;
+
+		if(status && c != BACKSPACE){
+			input[i++] = c;
+		} else if(c == BACKSPACE && i > 0) {
+			i--;
+		}
+	}
+	printf("\r\n");
+	input[i++] = '\0';
 }
 
 bool new_exit(){
